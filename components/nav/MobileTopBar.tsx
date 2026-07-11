@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { BrandMark } from "./BrandMark";
+import { AccountButton } from "@/components/auth/AccountButton";
 import { assembleTasks, useAppStore } from "@/store/useAppStore";
 import { computeProgress } from "@/lib/progress";
 import { formatPct } from "@/lib/utils";
@@ -22,11 +23,14 @@ export function MobileTopBar() {
       <Link href="/" className="focus-ring rounded-xl">
         <BrandMark />
       </Link>
-      <div className="flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-xs font-semibold text-accent-strong">
-        {formatPct(progress.pct)}
-        <span className="font-normal text-accent-strong/70">
-          {progress.done}/{progress.total}
-        </span>
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1.5 text-xs font-semibold text-accent-strong">
+          {formatPct(progress.pct)}
+          <span className="font-normal text-accent-strong/70">
+            {progress.done}/{progress.total}
+          </span>
+        </div>
+        <AccountButton placement="topbar" />
       </div>
     </header>
   );

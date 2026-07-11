@@ -72,4 +72,5 @@ export interface PersistedState {
   version: number;
   taskState: Record<string, TaskUserState>;
   capital: CapitalState;
+  updatedAt?: string; // ISO timestamp of the last write (used to merge across devices)
 }

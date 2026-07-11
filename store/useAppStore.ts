@@ -86,6 +86,8 @@ interface AppStore {
     value: number,
   ) => void;
   resetAll: () => void;
+  /** Replace state from a (merged) snapshot — used by the cloud sync engine. */
+  applySnapshot: (snapshot: PersistedState) => void;
 }
 
 // Debounced persistence so rapid edits (typing notes) don't thrash storage.
@@ -98,6 +100,7 @@ function scheduleSave(get: () => AppStore) {
       version: STORAGE_VERSION,
       taskState,
       capital,
+      updatedAt: nowIso(),
     };
     void storage.save(payload);
   }, 250);
@@ -165,4 +168,23 @@ export const useAppStore = create<AppStore>((set, get) => ({
     });
     scheduleSave(get);
   },
+
+  applySnapshot: (snapshot) => {
+    set({
+      taskState: mergeTaskState(snapshot.taskState),
+      capital: mergeCapital(snapshot.capital),
+    });
+    scheduleSave(get);
+  },
 }));
+
+/** Current in-memory state as a persistable blob (for the cloud sync engine). */
+export function currentPersisted(): PersistedState {
+  const { taskState, capital } = useAppStore.getState();
+  return {
+    version: STORAGE_VERSION,
+    taskState,
+    capital,
+    updatedAt: nowIso(),
+  };
+}

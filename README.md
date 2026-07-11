@@ -17,22 +17,28 @@ Excel tracker with a guided tool that, for every task, tracks **status**, holds
 - **Capital Stack** — a live Low / Expected / High cost estimator. Edit any
   driver; total cost, equity injection, and financed amount recompute instantly.
   Everything is labeled an **estimate**.
-- **Property Tracker** — log candidate spaces; all-in $/SF and annual rent
-  compute automatically; sort by fit score or rent.
 
 ## Stack
 
-Next.js (App Router) · TypeScript · Tailwind CSS v4 · Zustand · lucide-react.
+Next.js (App Router) · TypeScript · Tailwind CSS v4 · Zustand · lucide-react ·
+Supabase (optional cloud sync).
 
 ## Data & persistence
 
-All state (task status/notes, capital inputs, properties) is saved to
-`localStorage` under `apollo-tracker-v1`. Task **guidance** lives in code
-([`data/seed.ts`](data/seed.ts)); only your user state is persisted, so app
-updates that add new tasks merge in **without** clobbering your status or notes.
+All state (task status/notes, capital inputs) is saved to `localStorage` under
+`apollo-tracker-v1`. Task **guidance** lives in code ([`data/seed.ts`](data/seed.ts));
+only your user state is persisted, so app updates that add new tasks merge in
+**without** clobbering your status or notes.
 
-Reads/writes go through the [`AppStorage`](lib/storage.ts) interface, so a later
-swap to Supabase for cross-device sync is a one-file change — no UI impact.
+### Cloud sync (optional)
+
+Sign in with your email (magic link) to sync across devices. State lives in one
+private Supabase row protected by Row Level Security; `localStorage` stays as an
+instant, offline cache, and the two are merged per-task by most-recent-change so
+no device loses edits. Without Supabase env vars, the app runs local-only and no
+sign-in UI appears.
+
+**Setup:** see [`docs/CLOUD_SYNC.md`](docs/CLOUD_SYNC.md).
 
 ## Develop
 

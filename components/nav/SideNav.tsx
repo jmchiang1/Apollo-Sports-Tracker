@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { NAV_ITEMS, isActive } from "./navItems";
 import { BrandMark } from "./BrandMark";
 import { ResetButton } from "./ResetButton";
+import { AccountButton } from "@/components/auth/AccountButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useAppStore } from "@/store/useAppStore";
 import { assembleTasks } from "@/store/useAppStore";
@@ -62,7 +63,8 @@ export function SideNav() {
           </span>
         </div>
         <ProgressBar value={progress.pct} />
-        <div className="mt-4">
+        <div className="mt-4 space-y-1">
+          <AccountButton placement="sidebar" />
           <ResetButton />
         </div>
       </div>

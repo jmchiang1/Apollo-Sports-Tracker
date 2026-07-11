@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/layout/AppShell";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { CloudSync } from "@/components/providers/CloudSync";
 import { StoreHydrator } from "@/components/providers/StoreHydrator";
 
 const inter = Inter({
@@ -39,8 +41,11 @@ export default function RootLayout({
       className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full">
-        <StoreHydrator />
-        <AppShell>{children}</AppShell>
+        <AuthProvider>
+          <StoreHydrator />
+          <CloudSync />
+          <AppShell>{children}</AppShell>
+        </AuthProvider>
       </body>
     </html>
   );
