@@ -52,27 +52,6 @@ export interface Phase {
   subtitle?: string;
 }
 
-export interface PropertyRow {
-  id: string;
-  address: string;
-  broker: string;
-  contact: string;
-  sqft?: number;
-  clearHeightFt?: number;
-  baseRatePerSf?: number;
-  rateType?: "gross" | "nnn" | "unknown";
-  nnnLoadPerSf?: number;
-  parking?: number;
-  zoning?: string;
-  usePermitted?: string; // "as-of-right", "change-of-use needed", "unknown"
-  tiPerSf?: number;
-  columnSpacing?: string;
-  status?: "lead" | "requested_info" | "toured" | "shortlist" | "passed";
-  fitScore?: number; // 1-5
-  notes?: string;
-  // derived (computed, not stored): allInPerSf, annualRent
-}
-
 export interface CapitalInputs {
   sqft: number;
   buildoutPerSf: number;
@@ -93,5 +72,4 @@ export interface PersistedState {
   version: number;
   taskState: Record<string, TaskUserState>;
   capital: CapitalState;
-  properties: PropertyRow[];
 }

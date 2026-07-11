@@ -1,12 +1,6 @@
-import {
-  ArrowRight,
-  CircleCheck,
-  Link2,
-  TriangleAlert,
-} from "lucide-react";
+import { ArrowRight, CircleCheck, Link2 } from "lucide-react";
 import type { TaskGuidance } from "@/lib/types";
 import { RichText } from "./RichText";
-import { cn } from "@/lib/utils";
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -14,11 +8,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
       {children}
     </div>
   );
-}
-
-/** A flag reads as a stronger warning when it shouts VERIFY / DO NOT. */
-function isHardWarning(flag: string): boolean {
-  return /\b(VERIFY|DO NOT|non-negotiable)\b/i.test(flag);
 }
 
 export function GuidanceBlock({ guidance }: { guidance: TaskGuidance }) {
@@ -98,39 +87,6 @@ export function GuidanceBlock({ guidance }: { guidance: TaskGuidance }) {
           </p>
         </div>
       </div>
-
-      {/* Flags / caution notes */}
-      {guidance.flags && guidance.flags.length > 0 && (
-        <div>
-          <SectionLabel>Flags &amp; caveats</SectionLabel>
-          <ul className="space-y-2">
-            {guidance.flags.map((flag, i) => {
-              const hard = isHardWarning(flag);
-              return (
-                <li
-                  key={i}
-                  className={cn(
-                    "flex items-start gap-2.5 rounded-xl border p-3",
-                    hard
-                      ? "border-rose-200 bg-rose-50/70"
-                      : "border-amber-200 bg-amber-50/70",
-                  )}
-                >
-                  <TriangleAlert
-                    className={cn(
-                      "mt-0.5 size-4 shrink-0",
-                      hard ? "text-rose-500" : "text-amber-500",
-                    )}
-                  />
-                  <span className="text-sm leading-relaxed text-foreground/90">
-                    <RichText text={flag} />
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
     </div>
   );
 }

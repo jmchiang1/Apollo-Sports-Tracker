@@ -106,8 +106,15 @@ export function TaskItem({
         </button>
       </div>
 
-      <div className="collapsible" data-open={open} id={`detail-${task.id}`}>
-        <div className="collapsible-inner">{open && <TaskDetail task={task} />}</div>
+      <div
+        className="collapsible"
+        data-open={open}
+        id={`detail-${task.id}`}
+        inert={!open}
+      >
+        <div className="collapsible-inner">
+          <TaskDetail task={task} />
+        </div>
       </div>
     </article>
   );

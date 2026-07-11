@@ -78,7 +78,7 @@ export function PhaseSection({
         />
       </button>
 
-      <div className="collapsible" data-open={open}>
+      <div className="collapsible" data-open={open} inert={!open}>
         <div className="collapsible-inner">
           <ul className="space-y-2 pb-3 pt-1">
             {visibleTasks.length === 0 ? (

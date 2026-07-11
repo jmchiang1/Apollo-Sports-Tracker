@@ -7,7 +7,6 @@ import type {
   CapitalInputs,
   CapitalState,
   PersistedState,
-  PropertyRow,
   ScenarioKey,
   Task,
   TaskStatus,
@@ -19,13 +18,6 @@ const storage = getStorage();
 
 function nowIso(): string {
   return new Date().toISOString();
-}
-
-function newId(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return `id-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
 }
 
 /** Default per-task user state, seeded from each task's initialStatus. */
@@ -83,7 +75,6 @@ interface AppStore {
   hydrated: boolean;
   taskState: Record<string, TaskUserState>;
   capital: CapitalState;
-  properties: PropertyRow[];
 
   hydrate: () => Promise<void>;
   setTaskStatus: (id: string, status: TaskStatus) => void;
@@ -94,9 +85,6 @@ interface AppStore {
     field: keyof CapitalInputs,
     value: number,
   ) => void;
-  addProperty: () => string;
-  updateProperty: (id: string, patch: Partial<PropertyRow>) => void;
-  removeProperty: (id: string) => void;
   resetAll: () => void;
 }
 
@@ -105,12 +93,11 @@ let saveTimer: ReturnType<typeof setTimeout> | null = null;
 function scheduleSave(get: () => AppStore) {
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    const { taskState, capital, properties } = get();
+    const { taskState, capital } = get();
     const payload: PersistedState = {
       version: STORAGE_VERSION,
       taskState,
       capital,
-      properties,
     };
     void storage.save(payload);
   }, 250);
@@ -120,7 +107,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
   hydrated: false,
   taskState: seedTaskState(),
   capital: structuredClone(DEFAULT_CAPITAL),
-  properties: [],
 
   hydrate: async () => {
     if (get().hydrated) return;
@@ -128,7 +114,6 @@ export const useAppStore = create<AppStore>((set, get) => ({
     set({
       taskState: mergeTaskState(loaded?.taskState),
       capital: mergeCapital(loaded?.capital),
-      properties: loaded?.properties ?? [],
       hydrated: true,
     });
   },
@@ -173,41 +158,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
     scheduleSave(get);
   },
 
-  addProperty: () => {
-    const id = newId();
-    const row: PropertyRow = {
-      id,
-      address: "",
-      broker: "",
-      contact: "",
-      status: "lead",
-    };
-    set((state) => ({ properties: [...state.properties, row] }));
-    scheduleSave(get);
-    return id;
-  },
-
-  updateProperty: (id, patch) => {
-    set((state) => ({
-      properties: state.properties.map((p) =>
-        p.id === id ? { ...p, ...patch } : p,
-      ),
-    }));
-    scheduleSave(get);
-  },
-
-  removeProperty: (id) => {
-    set((state) => ({
-      properties: state.properties.filter((p) => p.id !== id),
-    }));
-    scheduleSave(get);
-  },
-
   resetAll: () => {
     set({
       taskState: seedTaskState(),
       capital: structuredClone(DEFAULT_CAPITAL),
-      properties: [],
     });
     scheduleSave(get);
   },

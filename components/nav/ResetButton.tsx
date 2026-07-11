@@ -6,7 +6,7 @@ import { useAppStore } from "@/store/useAppStore";
 import { cn } from "@/lib/utils";
 
 /**
- * Reset all statuses, notes, capital inputs, and properties back to the seed.
+ * Reset all statuses, notes, and capital inputs back to the seed.
  * Two-step inline confirm (no jarring native dialog).
  */
 export function ResetButton({ className }: { className?: string }) {
