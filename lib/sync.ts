@@ -1,4 +1,4 @@
-import type { PersistedState } from "./types";
+import type { CustomTask, PersistedState } from "./types";
 
 /** Is ISO timestamp `a` strictly newer than `b`? Missing = oldest. */
 function isNewer(a?: string, b?: string): boolean {
@@ -32,10 +32,22 @@ export function mergePersisted(
   }
 
   const localWins = isNewer(local.updatedAt, cloud.updatedAt);
+
+  // Union custom tasks by id so a task created offline on either device
+  // survives; the newer snapshot wins for ids present on both sides.
+  const customById = new Map<string, CustomTask>();
+  const first = localWins ? cloud.customTasks : local.customTasks;
+  const second = localWins ? local.customTasks : cloud.customTasks;
+  for (const c of first ?? []) customById.set(c.id, c);
+  for (const c of second ?? []) customById.set(c.id, c);
+
   return {
     version: local.version ?? cloud.version ?? 1,
     taskState,
     capital: localWins ? local.capital : cloud.capital,
+    customTasks: [...customById.values()],
+    taskOrder: (localWins ? local.taskOrder : cloud.taskOrder) ?? {},
+    phaseOverrides: (localWins ? local.phaseOverrides : cloud.phaseOverrides) ?? {},
     updatedAt: localWins ? local.updatedAt : cloud.updatedAt,
   };
 }

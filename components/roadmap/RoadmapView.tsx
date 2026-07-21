@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronsDownUp, ChevronsUpDown } from "lucide-react";
+import { ArrowUpDown, ChevronsDownUp, ChevronsUpDown } from "lucide-react";
 import { PhaseSection } from "@/components/tasks/PhaseSection";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PageSkeleton } from "@/components/ui/Skeleton";
@@ -58,11 +58,16 @@ export function RoadmapView() {
   const [openTaskChoice, setOpenTaskChoice] = useState<
     string | null | undefined
   >(undefined);
+  const [reordering, setReordering] = useState(false);
 
-  const phaseFilter = phaseFilterChoice ?? validPhaseParam ?? "all";
+  // Reordering is only unambiguous against the full, unfiltered list.
+  const activeStatusFilter: StatusFilter = reordering ? "all" : statusFilter;
+  const phaseFilter = reordering
+    ? "all"
+    : (phaseFilterChoice ?? validPhaseParam ?? "all");
   const openTaskId =
     openTaskChoice !== undefined ? openTaskChoice : (taskParam ?? null);
-  const filterActive = statusFilter !== "all" || phaseFilter !== "all";
+  const filterActive = activeStatusFilter !== "all" || phaseFilter !== "all";
 
   const defaultOpenPhaseId = useMemo(
     () => firstIncompletePhase(tasks),
@@ -161,7 +166,7 @@ export function RoadmapView() {
     const phaseTasks = tasks.filter((t) => t.phaseId === phase.id);
     const visibleTasks = phaseTasks.filter(
       (t) =>
-        passesStatus(t, statusFilter) &&
+        passesStatus(t, activeStatusFilter) &&
         (phaseFilter === "all" || t.phaseId === phaseFilter),
     );
     return { phase, phaseTasks, visibleTasks };
@@ -183,8 +188,9 @@ export function RoadmapView() {
               key={f.key}
               type="button"
               onClick={() => setStatusFilter(f.key)}
+              disabled={reordering}
               className={cn(
-                "focus-ring flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition",
+                "focus-ring flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition disabled:opacity-40",
                 statusFilter === f.key
                   ? "bg-accent text-accent-contrast shadow-soft"
                   : "bg-surface text-muted ring-1 ring-inset ring-border-subtle hover:text-foreground",
@@ -208,7 +214,8 @@ export function RoadmapView() {
             value={phaseFilter}
             onChange={(e) => setPhaseFilterChoice(e.target.value)}
             aria-label="Filter by phase"
-            className="focus-ring rounded-full border border-border-subtle bg-surface px-3.5 py-1.5 text-sm font-medium text-foreground"
+            disabled={reordering}
+            className="focus-ring rounded-full border border-border-subtle bg-surface px-3.5 py-1.5 text-sm font-medium text-foreground disabled:opacity-40"
           >
             <option value="all">All phases</option>
             {SORTED_PHASES.map((p) => (
@@ -217,6 +224,20 @@ export function RoadmapView() {
               </option>
             ))}
           </select>
+          <button
+            type="button"
+            onClick={() => setReordering((r) => !r)}
+            aria-pressed={reordering}
+            className={cn(
+              "focus-ring flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition",
+              reordering
+                ? "border-accent bg-accent text-accent-contrast shadow-soft"
+                : "border-border-subtle bg-surface text-muted hover:text-foreground",
+            )}
+          >
+            <ArrowUpDown className="size-4" />
+            {reordering ? "Done" : "Reorder"}
+          </button>
           <button
             type="button"
             onClick={() =>
@@ -242,6 +263,17 @@ export function RoadmapView() {
         </div>
       </div>
 
+      {reordering && (
+        <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-accent/30 bg-accent-tint px-3.5 py-2.5 text-sm text-foreground/90">
+          <ArrowUpDown className="mt-0.5 size-4 shrink-0 text-accent-strong" />
+          <p>
+            Use the arrows to arrange tasks within a phase. To move a task to a
+            different phase, open it and change its <strong>Phase</strong>.
+            Filters are paused while reordering.
+          </p>
+        </div>
+      )}
+
       {/* Phases */}
       <div className="divide-y divide-border-subtle">
         {renderedPhases.map(({ phase, phaseTasks, visibleTasks }) => (
@@ -255,6 +287,8 @@ export function RoadmapView() {
               openTaskId={openTaskId}
               onToggleTask={toggleTask}
               blockedByDepsById={blockedByDepsById}
+              reordering={reordering}
+              onTaskAdded={(id) => setOpenTaskChoice(id)}
             />
           </div>
         ))}

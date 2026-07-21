@@ -8,18 +8,14 @@ import { BrandMark } from "./BrandMark";
 import { ResetButton } from "./ResetButton";
 import { AccountButton } from "@/components/auth/AccountButton";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { useAppStore } from "@/store/useAppStore";
-import { assembleTasks } from "@/store/useAppStore";
+import { useTasks } from "@/store/useTasks";
 import { computeProgress } from "@/lib/progress";
 import { cn } from "@/lib/utils";
 
 export function SideNav() {
   const pathname = usePathname();
-  const taskState = useAppStore((s) => s.taskState);
-  const progress = useMemo(
-    () => computeProgress(assembleTasks(taskState)),
-    [taskState],
-  );
+  const tasks = useTasks();
+  const progress = useMemo(() => computeProgress(tasks), [tasks]);
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-border-subtle bg-surface/80 backdrop-blur md:flex">

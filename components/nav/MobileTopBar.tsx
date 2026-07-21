@@ -4,16 +4,13 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { BrandMark } from "./BrandMark";
 import { AccountButton } from "@/components/auth/AccountButton";
-import { assembleTasks, useAppStore } from "@/store/useAppStore";
+import { useTasks } from "@/store/useTasks";
 import { computeProgress } from "@/lib/progress";
 import { formatPct } from "@/lib/utils";
 
 export function MobileTopBar() {
-  const taskState = useAppStore((s) => s.taskState);
-  const progress = useMemo(
-    () => computeProgress(assembleTasks(taskState)),
-    [taskState],
-  );
+  const tasks = useTasks();
+  const progress = useMemo(() => computeProgress(tasks), [tasks]);
 
   return (
     <header
